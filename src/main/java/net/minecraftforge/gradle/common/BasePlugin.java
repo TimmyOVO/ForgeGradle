@@ -606,10 +606,6 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         });
         proj.getRepositories().remove(flatDirectoryArtifactRepository);
         proj.getRepositories().add(0, flatDirectoryArtifactRepository);
-        System.out.println("排序后仓库");
-        for (ArtifactRepository repository : proj.getRepositories()) {
-            System.out.println(repository.getName());
-        }
         return flatDirectoryArtifactRepository;
     }
 
