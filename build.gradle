@@ -18,7 +18,7 @@ apply plugin: 'maven'
 apply plugin: "com.gradle.plugin-publish"
 
 group = 'net.minecraftforge.gradle'
-version = '2.6-SNAPSHOT'
+version = '2.7-SNAPSHOT'
 //version = '2.2.1'
 archivesBaseName = 'ForgeGradle'
 targetCompatibility = '1.8'
