@@ -406,7 +406,6 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             });
         }
 
-
         Download downloadLWJGL = makeTask(TASK_DL_LWJGL_DARWIN_ARM64, Download.class);
         {
             downloadLWJGL.setOutput(delayedFile(JAR_DARWIN_ARM64_LWJGL));
@@ -449,7 +448,11 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             extractNatives.setConfig(CONFIG_NATIVES);
             extractNatives.exclude("META-INF/**", "META-INF/**");
             extractNatives.setDoesCache(true);
-            extractNatives.dependsOn(extractDarwinARM64Natives);
+            if (OS.CURRENT == OS.OSX && Constants.getArch2() == SystemArch2.ARM64) {
+                extractNatives.dependsOn(extractDarwinARM64Natives);
+            } else {
+                extractNatives.dependsOn(getVersionJson);
+            }
         }
 
 
