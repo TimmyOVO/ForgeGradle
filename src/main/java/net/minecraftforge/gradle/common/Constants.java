@@ -75,6 +75,11 @@ public class Constants
         }
     }
 
+    public enum SystemArch2
+    {
+        X86, X86_64, ARM, ARM64, UNKNOWN;
+    }
+
     public static final OS         OPERATING_SYSTEM = OS.CURRENT;
     public static final SystemArch SYSTEM_ARCH      = getArch();
     public static final Charset    CHARSET          = Charsets.UTF_8;
@@ -139,6 +144,8 @@ public class Constants
     public static final String DIR_MCP_DATA     = REPLACE_CACHE_DIR + "/de/oceanlabs/mcp/mcp/" + REPLACE_MC_VERSION;
     public static final String DIR_MCP_MAPPINGS = REPLACE_CACHE_DIR + "/de/oceanlabs/mcp/mcp_" + REPLACE_MCP_CHANNEL + "/" + REPLACE_MCP_VERSION;
     public static final String JAR_CLIENT_FRESH = REPLACE_CACHE_DIR + "/net/minecraft/minecraft/" + REPLACE_MC_VERSION + "/minecraft-" + REPLACE_MC_VERSION + ".jar";
+    public static final String JAR_DARWIN_ARM64_LWJGL = REPLACE_CACHE_DIR + "/net/minecraft/minecraft/" + REPLACE_MC_VERSION + "/lwjgl-darwin-aarch64.jar";
+    public static final String JAR_DARWIN_JINPUT_LWJGL = REPLACE_CACHE_DIR + "/net/minecraft/minecraft/" + REPLACE_MC_VERSION + "/jinput-darwin-aarch64.jar";
     public static final String JAR_SERVER_FRESH = REPLACE_CACHE_DIR + "/net/minecraft/minecraft_server/" + REPLACE_MC_VERSION + "/minecraft_server-" + REPLACE_MC_VERSION + ".jar";
     public static final String JAR_MERGED       = REPLACE_CACHE_DIR + "/net/minecraft/minecraft_merged/" + REPLACE_MC_VERSION + "/minecraft_merged-" + REPLACE_MC_VERSION + ".jar";
     public static final String JAR_SERVER_PURE  = REPLACE_CACHE_DIR + "/net/minecraft/minecraft_server/" + REPLACE_MC_VERSION + "/minecraft_server-" + REPLACE_MC_VERSION + "-pure.jar";
@@ -193,10 +200,13 @@ public class Constants
 
     // task names
     public static final String TASK_DL_CLIENT        = "downloadClient";
+    public static final String TASK_DL_LWJGL_DARWIN_ARM64        = "downloadDarwinArm64Lwjgl";
+    public static final String TASK_DL_JINPUT_DARWIN_ARM64        = "downloadDarwinArm64JInput";
     public static final String TASK_DL_SERVER        = "downloadServer";
     public static final String TASK_SPLIT_SERVER     = "splitServerJar";
     public static final String TASK_MERGE_JARS       = "mergeJars";
     public static final String TASK_EXTRACT_NATIVES  = "extractNatives";
+    public static final String TASK_EXTRACT_DARWIN_ARM64_NATIVES  = "extractDarwinArm64Natives";
     public static final String TASK_DL_VERSION_JSON  = "getVersionJson";
     public static final String TASK_DL_ASSET_INDEX   = "getAssetIndex";
     public static final String TASK_DL_ASSETS        = "getAssets";
@@ -261,6 +271,21 @@ public class Constants
         {
             return SystemArch.BIT_32;
         }
+    }
+
+    public static SystemArch2 getArch2()
+    {
+        String name = lower(System.getProperty("os.arch"));
+        if (name.equals("amd64") || name.equals("x86_64"))
+            return SystemArch2.X86_64;
+        else if (name.equals("x86") || name.equals("i386") || name.equals("i486") || name.equals("i586") || name.equals("i686"))
+            return SystemArch2.X86;
+        else if (name.equals("arm") || name.equals("armv7l") || name.equals("armv6l") || name.equals("armv8l"))
+            return SystemArch2.ARM;
+        else if (name.equals("arm64") || name.equals("aarch64") || name.equals("armv8") || name.equals("armv8a"))
+            return SystemArch2.ARM64;
+        else
+            return SystemArch2.UNKNOWN;
     }
 
     public static String lower(String string)

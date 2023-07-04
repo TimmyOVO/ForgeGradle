@@ -41,6 +41,7 @@ import net.minecraftforge.gradle.util.json.fgversion.FGBuildStatus;
 import net.minecraftforge.gradle.util.json.fgversion.FGVersion;
 import net.minecraftforge.gradle.util.json.fgversion.FGVersionWrapper;
 import net.minecraftforge.gradle.util.json.version.ManifestVersion;
+import net.minecraftforge.gradle.util.json.version.OS;
 import net.minecraftforge.gradle.util.json.version.Version;
 import org.gradle.api.*;
 import org.gradle.api.artifacts.Configuration;
@@ -405,14 +406,52 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             });
         }
 
+
+        Download downloadLWJGL = makeTask(TASK_DL_LWJGL_DARWIN_ARM64, Download.class);
+        {
+            downloadLWJGL.setOutput(delayedFile(JAR_DARWIN_ARM64_LWJGL));
+            downloadLWJGL.setUrl(new Closure<String>(BasePlugin.class) {
+                @Override
+                public String call() {
+                    return "https://github.com/MinecraftMachina/lwjgl/releases/download/2.9.4-20150209-mmachina.2/lwjgl-platform-2.9.4-nightly-20150209-natives-osx.jar";
+                }
+            });
+
+            downloadLWJGL.dependsOn(getVersionJson);
+        }
+
+        Download downloadJINPUT = makeTask(TASK_DL_JINPUT_DARWIN_ARM64, Download.class);
+        {
+            downloadJINPUT.setOutput(delayedFile(JAR_DARWIN_JINPUT_LWJGL));
+            downloadJINPUT.setUrl(new Closure<String>(BasePlugin.class) {
+                @Override
+                public String call() {
+                    return "https://github.com/r58Playz/jinput-m1/raw/main/plugins/OSX/bin/jinput-platform-2.0.5.jar";
+                }
+            });
+
+            downloadJINPUT.dependsOn(downloadLWJGL);
+        }
+
+        ExtractTask extractDarwinARM64Natives = makeTask(TASK_EXTRACT_DARWIN_ARM64_NATIVES, ExtractTask.class);
+        {
+            extractDarwinARM64Natives.from(delayedFile(JAR_DARWIN_ARM64_LWJGL), delayedFile(JAR_DARWIN_JINPUT_LWJGL));
+            extractDarwinARM64Natives.setDestinationDir(delayedFile(DIR_NATIVES));
+            extractDarwinARM64Natives.exclude("META-INF/**", "META-INF/**");
+            extractDarwinARM64Natives.setDoesCache(true);
+            extractDarwinARM64Natives.dependsOn(downloadJINPUT);
+        }
+
+
         ExtractConfigTask extractNatives = makeTask(TASK_EXTRACT_NATIVES, ExtractConfigTask.class);
         {
             extractNatives.setDestinationDir(delayedFile(DIR_NATIVES));
             extractNatives.setConfig(CONFIG_NATIVES);
             extractNatives.exclude("META-INF/**", "META-INF/**");
             extractNatives.setDoesCache(true);
-            extractNatives.dependsOn(getVersionJson);
+            extractNatives.dependsOn(extractDarwinARM64Natives);
         }
+
 
         EtagDownloadTask getAssetsIndex = makeTask(TASK_DL_ASSET_INDEX, EtagDownloadTask.class);
         {
@@ -736,10 +775,22 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         if (project.getConfigurations().getByName(CONFIG_NATIVES).getState() == State.UNRESOLVED) {
             for (net.minecraftforge.gradle.util.json.version.Library lib : version.getLibraries()) {
                 if (lib.natives != null) {
+                    if (OS.getCurrentPlatform() == OS.OSX && getArch2() == SystemArch2.ARM64) {
+                        if (lib.getArtifactName().contains("lwjgl-platform")) {
+                            LOGGER.debug("Skipping lwjgl-platform");
+                            continue;
+                        }
+                        if (lib.getArtifactName().contains("jinput-platform")) {
+                            LOGGER.debug("Skipping jinput-platform");
+                            continue;
+                        }
+                    }
                     if (lib.getArtifactName().contains("java-objc-bridge") && lib.getArtifactName().contains("natives-osx")) //Normal repo bundles this in the mian jar so we need to just use the main jar
                         handler.add(CONFIG_NATIVES, lib.getArtifactNameSkipNatives());
-                    else
+                    else {
                         handler.add(CONFIG_NATIVES, lib.getArtifactName());
+                        LOGGER.debug("Adding native: " + lib.getArtifactName());
+                    }
                 }
             }
         } else
