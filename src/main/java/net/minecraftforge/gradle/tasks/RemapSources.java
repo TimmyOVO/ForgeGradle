@@ -27,6 +27,7 @@ import java.util.function.Function;
 
 import net.minecraftforge.gradle.common.Constants;
 import net.minecraftforge.gradle.util.delayed.DelayedFile;
+import net.minecraftforge.gradle.util.json.version.OS;
 import net.minecraftforge.gradle.util.mcp.JavadocAdder;
 
 import org.gradle.api.tasks.Input;
@@ -102,6 +103,15 @@ public class RemapSources extends AbstractEditJarTask
             if (addsJavadocs)
             {
                 injectJavadoc(newLines, line, methodDocs::get, fieldDocs::get);
+            }
+            if (OS.CURRENT == OS.OSX && Constants.getArch2() == Constants.SystemArch2.ARM64){
+                if (line.contains("Narrator.getNarrator()")){
+                    line = line.replace("Narrator.getNarrator()", "new NarratorDummy()");
+                    getLogger().lifecycle("macOS ARM64 detected, disabling Narrator support.");
+                }
+                if (line.contains("import com.mojang.text2speech.Narrator;")){
+                    line = line.replace("import com.mojang.text2speech.Narrator;", "import com.mojang.text2speech.Narrator;\nimport com.mojang.text2speech.NarratorDummy;");
+                }
             }
             newLines.add(replaceInLine(line));
         }
