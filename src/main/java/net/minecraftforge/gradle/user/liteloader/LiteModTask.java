@@ -27,10 +27,11 @@ import org.gradle.api.AntBuilder;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.internal.ClosureBackedAction;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.util.ClosureBackedAction;
+import org.gradle.util.ConfigureUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,7 +103,8 @@ public class LiteModTask extends DefaultTask
     
     public void json(Closure<?> configureClosure) throws IOException
     {
-        ClosureBackedAction.execute(this.getJson(), configureClosure);
+        // 使用Gradle的ClosureBackedAction来执行闭包配置
+        new ClosureBackedAction<LiteModJson>(configureClosure).execute(this.getJson());
     }
 
     public String getBuildNumber() throws IOException

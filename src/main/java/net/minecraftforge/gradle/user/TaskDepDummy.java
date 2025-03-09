@@ -26,18 +26,21 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 public class TaskDepDummy extends DefaultTask
 {
     private Object outputFile;
-    
+
     @TaskAction
     public void makeEmptyJar() throws IOException
     {
         File out = getOutputFile();
         out.getParentFile().mkdirs();
-        
+
         // yup.. a dummy jar....
         try (JarOutputStream stream = new JarOutputStream(new FileOutputStream(out)))
         {
@@ -46,11 +49,12 @@ public class TaskDepDummy extends DefaultTask
             stream.closeEntry();
         }
     }
-
+    @InputFile
     public File getOutputFile()
     {
         return getProject().file(outputFile);
     }
+
 
     public void setOutputFile(Object outputFile)
     {

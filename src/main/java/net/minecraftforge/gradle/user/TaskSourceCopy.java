@@ -81,7 +81,7 @@ public class TaskSourceCopy extends DefaultTask
         {
             if (e.getKey() == null || e.getValue() == null)
                 continue; // we dont deal with nulls.
-            
+
             Object val = e.getValue();
             while (val instanceof Closure)
                 val = ((Closure<Object>) val).call();
@@ -221,7 +221,7 @@ public class TaskSourceCopy extends DefaultTask
         includes.addAll(strs);
     }
 
-    public ArrayList<String> getIncudes()
+    public ArrayList<String> getIncludes()
     {
         return includes;
     }
