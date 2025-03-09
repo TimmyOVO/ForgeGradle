@@ -30,10 +30,12 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import lombok.Getter;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 
@@ -46,6 +48,7 @@ import com.google.common.io.Files;
 public class TaskExtractDepAts extends DefaultTask
 {
     @Input
+    @Getter
     private List<String> configurations = Lists.newArrayList();
     @OutputDirectory
     private Object               outputDir;
@@ -56,7 +59,7 @@ public class TaskExtractDepAts extends DefaultTask
         FileCollection col = getCollections();
         File outputDir = getOutputDir();
         outputDir.mkdirs(); // make sur eit exists
-        
+
         // make a list of things to delete...
         List<File> toDelete = Lists.newArrayList(outputDir.listFiles(new FileFilter() {
             @Override
@@ -102,14 +105,14 @@ public class TaskExtractDepAts extends DefaultTask
                 }
             }
         }
-        
+
         // remove the files that shouldnt be there...
         for (File f : toDelete)
         {
             f.delete();
         }
     }
-
+    @Internal
     public FileCollection getCollections()
     {
     	List<Configuration> configs = Lists.newArrayListWithCapacity(configurations.size());

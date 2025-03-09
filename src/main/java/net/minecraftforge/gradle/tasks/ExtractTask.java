@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import lombok.Getter;
 import net.minecraftforge.gradle.util.ExtractionVisitor;
 import net.minecraftforge.gradle.util.caching.Cached;
 import net.minecraftforge.gradle.util.caching.CachedTask;
@@ -47,12 +48,14 @@ public class ExtractTask extends CachedTask implements PatternFilterable
     @InputFiles
     private LinkedHashSet<Object> sourcePaths      = new LinkedHashSet<Object>();
 
+    @Getter
     @Input
     private PatternSet            patternSet       = new PatternSet();
 
     @Input
     private boolean               includeEmptyDirs = true;
 
+    @Getter
     @Input
     @Optional
     private boolean               clean            = false;
@@ -72,7 +75,7 @@ public class ExtractTask extends CachedTask implements PatternFilterable
         }
 
         dest.mkdirs();
-        
+
         ExtractionVisitor visitor = new ExtractionVisitor(dest, isIncludeEmptyDirs(), patternSet.getAsSpec());
 
         for (File source : getSourcePaths())

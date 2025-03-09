@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraftforge.gradle.util.ExtractionVisitor;
 import net.minecraftforge.gradle.util.caching.Cached;
 import net.minecraftforge.gradle.util.caching.CachedTask;
@@ -32,30 +34,31 @@ import net.minecraftforge.gradle.util.caching.CachedTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.specs.Spec;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
 
 public class ExtractConfigTask extends CachedTask implements PatternFilterable
 {
 
+    @Setter
+    @Getter
     @Input
     private String     config;
 
-    @Input
     private PatternSet patternSet       = new PatternSet();
 
+    @Setter
+    @Getter
     @Input
     private boolean    includeEmptyDirs = true;
 
+    @Setter
     @Input
-    @Optional
+    @Getter
     private boolean    clean            = false;
 
+    @Setter
     @Cached
     @OutputDirectory
     private Object     destinationDir   = null;
@@ -91,41 +94,16 @@ public class ExtractConfigTask extends CachedTask implements PatternFilterable
         f.delete();
     }
 
-    public String getConfig()
-    {
-        return config;
-    }
-
-    public void setConfig(String config)
-    {
-        this.config = config;
-    }
-
     @Optional
     @InputFiles
     public FileCollection getConfigFiles()
     {
         return getProject().getConfigurations().getByName(config);
     }
-    
-    public void setDestinationDir(Object dest)
-    {
-        this.destinationDir = dest;
-    }
 
     public File getDestinationDir()
     {
         return getProject().file(destinationDir);
-    }
-
-    public boolean isIncludeEmptyDirs()
-    {
-        return includeEmptyDirs;
-    }
-
-    public void setIncludeEmptyDirs(boolean includeEmptyDirs)
-    {
-        this.includeEmptyDirs = includeEmptyDirs;
     }
 
     @Override
@@ -137,11 +115,6 @@ public class ExtractConfigTask extends CachedTask implements PatternFilterable
     public boolean shouldClean()
     {
         return clean;
-    }
-
-    public void setClean(boolean clean)
-    {
-        this.clean = clean;
     }
 
     @Override
@@ -170,12 +143,14 @@ public class ExtractConfigTask extends CachedTask implements PatternFilterable
     }
 
     @Override
+    @Input
     public Set<String> getExcludes()
     {
         return patternSet.getExcludes();
     }
 
     @Override
+    @Input
     public Set<String> getIncludes()
     {
         return patternSet.getIncludes();
